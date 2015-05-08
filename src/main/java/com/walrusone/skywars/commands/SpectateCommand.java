@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 
 import com.walrusone.skywars.SkyWarsReloaded;
 import com.walrusone.skywars.game.GamePlayer;
+import com.walrusone.skywars.menus.SpecGameMenu;
 import com.walrusone.skywars.utilities.Messaging;
 
 public class SpectateCommand implements CommandExecutor {
@@ -29,9 +30,9 @@ public class SpectateCommand implements CommandExecutor {
 				if (args.length == 1) {
 					if (sender instanceof Player) {
 						Player player = (Player) sender;
-						GamePlayer gPlayer = SkyWarsReloaded.getPC().getPlayer(player);
-						if (gPlayer.getGame() == null) {
-								SkyWarsReloaded.getGC().openGameMenu(gPlayer);
+						GamePlayer gPlayer = SkyWarsReloaded.getPC().getPlayer(player.getUniqueId());
+						if (!gPlayer.inGame()) {
+							new SpecGameMenu(gPlayer);
 						} else {
 							sender.sendMessage(new Messaging.MessageFormatter().format("error.no-spectate-other-worlds"));
 						}

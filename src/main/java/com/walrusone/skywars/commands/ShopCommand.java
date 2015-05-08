@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import com.walrusone.skywars.SkyWarsReloaded;
 import com.walrusone.skywars.game.Game.GameState;
 import com.walrusone.skywars.game.GamePlayer;
+import com.walrusone.skywars.menus.ShopMenu;
 import com.walrusone.skywars.utilities.Messaging;
 
 public class ShopCommand implements CommandExecutor {
@@ -30,10 +31,10 @@ public class ShopCommand implements CommandExecutor {
 				if (args.length == 1) {
 					if (sender instanceof Player) {
 						Player player = (Player) sender;
-						GamePlayer gPlayer = SkyWarsReloaded.getPC().getPlayer(player);
-						if (gPlayer.getGame() != null) {
+						GamePlayer gPlayer = SkyWarsReloaded.getPC().getPlayer(player.getUniqueId());
+						if (gPlayer.inGame()) {
 							if (gPlayer.getGame().getState() == GameState.PREGAME || gPlayer.getGame().getState() == GameState.PLAYING) {
-								SkyWarsReloaded.getSC().openKitMenu(gPlayer);
+								new ShopMenu(gPlayer);
 							}
 						} else {
 							sender.sendMessage(new Messaging.MessageFormatter().format("error.shop-not-available"));

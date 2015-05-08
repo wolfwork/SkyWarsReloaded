@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import com.walrusone.skywars.SkyWarsReloaded;
 import com.walrusone.skywars.game.Game.GameState;
 import com.walrusone.skywars.game.GamePlayer;
+import com.walrusone.skywars.menus.KitMenu;
 import com.walrusone.skywars.utilities.Messaging;
 
 public class KitCommand implements CommandExecutor {
@@ -32,10 +33,10 @@ public class KitCommand implements CommandExecutor {
 				if (args.length == 1) {
 					if (sender instanceof Player) {
 						Player player = (Player) sender;
-						GamePlayer gPlayer = SkyWarsReloaded.getPC().getPlayer(player);
-						if (gPlayer.getGame() != null) {
-							if (gPlayer.getGame().getState() == GameState.INLOBBY && !gPlayer.hasKitSelected()) {
-								SkyWarsReloaded.getKC().openKitMenu(gPlayer);
+						GamePlayer gPlayer = SkyWarsReloaded.getPC().getPlayer(player.getUniqueId());
+						if (gPlayer.inGame()) {
+							if (gPlayer.getGame().getState() == GameState.PREGAME && !gPlayer.hasKitSelected()) {
+								new KitMenu(gPlayer);
 							}
 						} else {
 							sender.sendMessage(new Messaging.MessageFormatter().format("error.not-in-game"));

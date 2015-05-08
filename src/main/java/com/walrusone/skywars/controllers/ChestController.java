@@ -21,8 +21,12 @@ import java.util.Random;
 public class ChestController {
 
     private final List<ChestItem> chestItemList = Lists.newArrayList();
+    private final List<ChestItem> opChestItemList = Lists.newArrayList();
+    private final List<ChestItem> basicChestItemList = Lists.newArrayList();
     private final Random random = new Random();
+   
     private List<Integer> randomLoc = new ArrayList<Integer>();
+
 
     public ChestController() {
         load();
@@ -58,24 +62,110 @@ public class ChestController {
                 }
             }
         }
-    }
+        
+        opChestItemList.clear();
+        File opChestFile = new File(SkyWarsReloaded.get().getDataFolder(), "opchest.yml");
 
-    public void populateChest(Chest chest) {
-        Inventory inventory = chest.getBlockInventory();
-        int added = 0;
-        Collections.shuffle(randomLoc);
+        if (!opChestFile.exists()) {
+        	SkyWarsReloaded.get().saveResource("opchest.yml", false);
+        }
 
-        for (ChestItem chestItem : chestItemList) {
-            if (random.nextInt(100) + 1 <= chestItem.getChance()) {
-                inventory.setItem(randomLoc.get(added), chestItem.getItem());
-                if (added++ > inventory.getSize()) {
-                    break;
+        if (opChestFile.exists()) {
+            FileConfiguration storage = YamlConfiguration.loadConfiguration(opChestFile);
+
+            if (storage.contains("items")) {
+                for (String item : storage.getStringList("items")) {
+                    List<String> itemData = new LinkedList<String>(Arrays.asList(item.split(" ")));
+
+                    int chance = Integer.parseInt(itemData.get(0));
+                    itemData.remove(itemData.get(0));
+                    
+                    ItemStack itemStack = ItemUtils.parseItem(itemData);
+                    
+                    
+                    if (itemStack != null) {
+                        opChestItemList.add(new ChestItem(itemStack, chance));
+                    }
                 }
             }
         }
+        
+        basicChestItemList.clear();
+        File basicChestFile = new File(SkyWarsReloaded.get().getDataFolder(), "basicchest.yml");
+
+        if (!basicChestFile.exists()) {
+        	SkyWarsReloaded.get().saveResource("basicchest.yml", false);
+        }
+
+        if (basicChestFile.exists()) {
+            FileConfiguration storage = YamlConfiguration.loadConfiguration(basicChestFile);
+
+            if (storage.contains("items")) {
+                for (String item : storage.getStringList("items")) {
+                    List<String> itemData = new LinkedList<String>(Arrays.asList(item.split(" ")));
+
+                    int chance = Integer.parseInt(itemData.get(0));
+                    itemData.remove(itemData.get(0));
+                    
+                    ItemStack itemStack = ItemUtils.parseItem(itemData);
+                    
+                    
+                    if (itemStack != null) {
+                        basicChestItemList.add(new ChestItem(itemStack, chance));
+                    }
+                }
+            }
+        }
+        
     }
 
-    public class ChestItem {
+    public void populateChest(Chest chest, String chestfile) {
+    	if (chestfile.equalsIgnoreCase("op")) {
+    		Inventory inventory = chest.getBlockInventory();
+    		inventory.clear();
+            int added = 0;
+            Collections.shuffle(randomLoc);
+
+            for (ChestItem chestItem : opChestItemList) {
+                if (random.nextInt(100) + 1 <= chestItem.getChance()) {
+                    inventory.setItem(randomLoc.get(added), chestItem.getItem());
+                    if (added++ >= inventory.getSize()-1) {
+                        break;
+                    }
+                }
+            }
+    	} else if (chestfile.equalsIgnoreCase("basic")) {
+    		Inventory inventory = chest.getBlockInventory();
+    		inventory.clear();
+            int added = 0;
+            Collections.shuffle(randomLoc);
+
+            for (ChestItem chestItem : basicChestItemList) {
+                if (random.nextInt(100) + 1 <= chestItem.getChance()) {
+                    inventory.setItem(randomLoc.get(added), chestItem.getItem());
+                    if (added++ >= inventory.getSize()-1) {
+                        break;
+                    }
+                }
+            }
+    	} else {
+            Inventory inventory = chest.getBlockInventory();
+    		inventory.clear();
+            int added = 0;
+            Collections.shuffle(randomLoc);
+
+            for (ChestItem chestItem : chestItemList) {
+                if (random.nextInt(100) + 1 <= chestItem.getChance()) {
+                    inventory.setItem(randomLoc.get(added), chestItem.getItem());
+                    if (added++ >= inventory.getSize()-1) {
+                        break;
+                    }
+                }
+            }
+    	}
+    }
+
+    private class ChestItem {
 
         private ItemStack item;
         private int chance;
@@ -94,4 +184,5 @@ public class ChestController {
         }
     }
     
+
 }
